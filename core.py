@@ -1,8 +1,14 @@
 import subprocess
 import httpx
 import re
+import json
+import hashlib
+import time
 from bisect import bisect_right
+from pathlib import Path
 
+CACHE_DIR = Path.home() / ".cache" / "neoplug-lyrics"
+CACHE_MAX_AGE = 15 * 24 * 60 * 60
 
 def get_active_player() -> str | None:
     try:
@@ -43,6 +49,42 @@ def get_current_song(player: str | None = None) -> str | None:
         return song or None
     except subprocess.CalledProcessError:
         return None
+
+def _cache_key(artist: str, title: str) -> str:
+    normalized = f"{artist.lower().strip()}|{title.lower().strip()}"
+    return hashlib.md5(normalized.encode()).hexdigest()
+
+def _cache_path(artist: str, title: str) -> Path:
+    return CACHE_DIR / f"{_cache_key(artist, title)}.json"
+
+def get_cached_lyrics(artist: str, title: str) -> dict[str, str | None] | None:
+    path = _cache_path(artist, title)
+    if not path.exists():
+        return None
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            entry = json.load(f)
+    except (json.JSONDecodeError, OSError):
+        return None
+
+    age = time.time() - entry.get("timestamp", 0)
+    if age > CACHE_MAX_AGE:
+        return None
+    return {"syncedLyrics": entry.get("syncedLyrics"), "plainLyrics": entry.get("plainLyrics")}
+
+def save_to_cache(artist: str, title: str, data: dict[str, str | None]) -> None:
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    path = _cache_path(artist, title)
+    entry = {
+        "timestamp": time.time(),
+        "syncedLyrics": data.get("syncedLyrics"),
+        "plainLyrics": data.get("plainLyrics"),
+    }
+    try:
+        with path.open("w", encoding="utf-8") as f:
+            json.dump(entry, f)
+    except OSError:
+        pass
 
 
 async def fetch_lyrics(artist: str, title: str) -> dict[str, str | None] | None:
