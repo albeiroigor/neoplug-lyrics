@@ -99,3 +99,30 @@ def get_position(player: str | None = None) -> float | None:
         return float(output.strip())
     except (subprocess.CalledProcessError, ValueError):
         return None
+
+def get_duration(player: str | None = None) -> float | None:
+    if player is None:
+        player = get_active_player()
+    if player is None:
+        return None
+
+    try:
+        output = subprocess.check_output(
+            ["playerctl", f"--player={player}", "metadata", "mpris:length"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+        return float(output) / 1_000_000 
+    except (subprocess.CalledProcessError, ValueError):
+        return None
+
+def list_players() -> list[str]:
+    try:
+        output = subprocess.check_output(
+            ["playerctl", "-l"],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        )
+    except subprocess.CalledProcessError:
+        return []
+    return [p.strip() for p in output.splitlines() if p.strip()]
