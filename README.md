@@ -12,7 +12,7 @@ Letras sincronizadas (karaoke) en la terminal, detectando automáticamente lo qu
 
 ```bash
 git clone https://github.com/albeiroigor/neoplug-lyrics.git
-cd neoplug-lyrics-module
+cd neoplug-lyrics
 uv sync
 ```
 
