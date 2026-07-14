@@ -1,4 +1,4 @@
-# NeoPlug Lyrics Module
+# Neoplug Lyrics
 
 Letras sincronizadas (karaoke) en la terminal, detectando automáticamente lo que estés escuchando en Linux.
 
@@ -19,7 +19,7 @@ uv sync
 ## Uso
 
 ```bash
-uv run python interface.py
+uv run python ui.py
 ```
 
 La app detecta automáticamente el reproductor activo (Spotify, Chromium, VLC, etc.), busca la letra sincronizada en [lrclib.net](https://lrclib.net) y la muestra en modo karaoke, resaltando la línea actual.
