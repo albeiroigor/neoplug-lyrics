@@ -11,7 +11,7 @@ Letras sincronizadas (karaoke) en la terminal, detectando automáticamente lo qu
 ## Instalación
 
 ```bash
-git clone <tu-repo>
+git clone https://github.com/albeiroigor/neoplug-lyrics.git
 cd neoplug-lyrics-module
 uv sync
 ```
