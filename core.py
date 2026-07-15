@@ -28,18 +28,15 @@ def get_active_player() -> str | None:
             return player
     return None
 
-
 def clear_title(title):
     title = re.sub(r"[\(\[].*?[\)\]]", "", title)
     return title.strip()
-
 
 def get_current_song(player: str | None = None) -> str | None:
     if player is None:
         player = get_active_player()
     if player is None:
         return None
-
     try:
         song = subprocess.check_output(
             ["playerctl", f"--player={player}", "metadata", "--format", "{{artist}}|{{title}}"],
@@ -86,7 +83,6 @@ def save_to_cache(artist: str, title: str, data: dict[str, str | None]) -> None:
     except OSError:
         pass
 
-
 async def fetch_lyrics(artist: str, title: str) -> dict[str, str | None] | None:
     async with httpx.AsyncClient() as client:
         try:
@@ -104,9 +100,7 @@ async def fetch_lyrics(artist: str, title: str) -> dict[str, str | None] | None:
             return None
         return {"syncedLyrics": data.get("syncedLyrics"), "plainLyrics": data.get("plainLyrics")}
 
-
 LRC_PATTERN = re.compile(r"\[(\d+):(\d+(?:\.\d+)?)\](.*)")
-
 
 def parse_lrc(raw_lyrics: str) -> list[tuple[float, str]]:
     lyrics = []
@@ -120,18 +114,15 @@ def parse_lrc(raw_lyrics: str) -> list[tuple[float, str]]:
     lyrics.sort(key=lambda item: item[0])
     return lyrics
 
-
 def get_current_line(lyrics: list[tuple[float, str]], current_time: float) -> int:
     timestamps = [line[0] for line in lyrics]
     return max(0, bisect_right(timestamps, current_time) - 1)
-
 
 def get_position(player: str | None = None) -> float | None:
     if player is None:
         player = get_active_player()
     if player is None:
         return None
-
     try:
         output = subprocess.check_output(
             ["playerctl", "--player", player, "position"],
@@ -147,7 +138,6 @@ def get_duration(player: str | None = None) -> float | None:
         player = get_active_player()
     if player is None:
         return None
-
     try:
         output = subprocess.check_output(
             ["playerctl", f"--player={player}", "metadata", "mpris:length"],
